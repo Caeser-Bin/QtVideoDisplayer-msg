@@ -14,6 +14,8 @@ target_include_directories(messaging PUBLIC
         $<INSTALL_INTERFACE:include/messaging>
 )
 
+target_include_directories(messaging PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
 # 设置编译器特性
 target_compile_features(messaging PUBLIC cxx_std_17)
 
