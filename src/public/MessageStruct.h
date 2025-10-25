@@ -12,9 +12,11 @@
 
 struct Message
 {
-    std::string url;
+    std::string channel;
     Method method;
     nlohmann::json body;
+
+    std::string toString();
 };
 
 #endif //MESSAGE_STRUCT_H
