@@ -11,32 +11,32 @@
 class EventBus
 {
 public:
-    std::shared_ptr<EventBus> instance();
+    static EventBus* instance();
 
-    void publish(std::shared_ptr<Event>& event);
+public:
+    EventBus(const EventBus&) = delete;
+    EventBus& operator=(const EventBus&) = delete;
 
-    using EventHandler = std::function<void(const Event&, const std::any& ret)>;
+public:
+    void publish(const std::shared_ptr<Event>& event) const;
+
+    using EventHandler = std::function<void(const std::shared_ptr<Event>&)>;
 
     template <typename EventType>
-    void subscribe(const std::string& topic, EventHandler handler)
+    void subscribe(const std::string& topic, const EventHandler& handler)
     {
-        std::lock_guard lock(mutex_);
-        handlers_[topic].push_back([handler](const Event& event)
-        {
-            handler(dynamic_cast<const EventType&>(event));
-        });
+        std::lock_guard lock(mutex);
+        m_handlers[topic].push_back([handler](const Event& event)
+                                    { handler(std::dynamic_pointer_cast<EventType>(event)); });
     }
 
 private:
     EventBus() = default;
     ~EventBus() = default;
 
-    EventBus(const EventBus&) = delete;
-    EventBus& operator=(const EventBus&) = delete;
-
-
-    std::unordered_map<std::string, std::vector<EventHandler>> handlers_;
-    std::mutex mutex_;
+private:
+    std::unordered_map<std::string, std::vector<EventHandler>> m_handlers;
+    mutable std::mutex mutex;
 };
 
-#endif //EVENT_BUS_H
+#endif // EVENT_BUS_H
